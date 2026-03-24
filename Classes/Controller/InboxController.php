@@ -124,10 +124,7 @@ class InboxController extends ActionController
         }
 
         $mailbox = $this->buildMailboxString($config);
-        $connection = @imap_open($mailbox, (string)$config['username'], (string)$config['password']);
-        if ($connection === false) {
-            throw new \RuntimeException('Could not connect to mail server: ' . imap_last_error());
-        }
+        $connection = $this->openImapConnection($mailbox, $config);
 
         try {
             $count = imap_num_msg($connection);
@@ -167,10 +164,7 @@ class InboxController extends ActionController
         }
 
         $mailbox = $this->buildMailboxString($config);
-        $connection = @imap_open($mailbox, (string)$config['username'], (string)$config['password']);
-        if ($connection === false) {
-            throw new \RuntimeException('Could not connect to mail server: ' . imap_last_error());
-        }
+        $connection = $this->openImapConnection($mailbox, $config);
 
         try {
             $header = imap_headerinfo($connection, $messageNumber);
@@ -205,10 +199,7 @@ class InboxController extends ActionController
         }
 
         $mailbox = $this->buildMailboxString($config);
-        $connection = @imap_open($mailbox, (string)$config['username'], (string)$config['password']);
-        if ($connection === false) {
-            throw new \RuntimeException('Could not connect to mail server: ' . imap_last_error());
-        }
+        $connection = $this->openImapConnection($mailbox, $config);
 
         try {
             imap_delete($connection, (string)$messageNumber);
@@ -216,6 +207,25 @@ class InboxController extends ActionController
         } finally {
             imap_close($connection);
         }
+    }
+
+    /**
+     * Open an IMAP connection with sanitized credentials.
+     *
+     * @param array<string, mixed> $config
+     * @return \IMAP\Connection
+     */
+    private function openImapConnection(string $mailbox, array $config): mixed
+    {
+        // Strip non-printable ASCII characters from username to prevent connection string injection
+        $username = (string)preg_replace('/[^\x20-\x7E]/', '', (string)$config['username']);
+        $password = (string)$config['password'];
+
+        $connection = @imap_open($mailbox, $username, $password);
+        if ($connection === false) {
+            throw new \RuntimeException('Could not connect to mail server: ' . imap_last_error());
+        }
+        return $connection;
     }
 
     /**

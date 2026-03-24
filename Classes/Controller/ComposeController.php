@@ -7,6 +7,7 @@ namespace Maispace\MaiMail\Controller;
 use Maispace\MaiMail\Service\MailQueueService;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
@@ -26,8 +27,10 @@ class ComposeController extends ActionController
     public function indexAction(): ResponseInterface
     {
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $backendUser = $this->getBackendUser();
+        $senderEmail = filter_var((string)($backendUser->user['email'] ?? ''), FILTER_VALIDATE_EMAIL);
         $moduleTemplate->assign('formData', [
-            'sender' => $GLOBALS['BE_USER']->user['email'] ?? '',
+            'sender' => $senderEmail !== false ? $senderEmail : '',
             'recipients' => '',
             'subject' => '',
             'body' => '',
@@ -123,5 +126,10 @@ class ComposeController extends ActionController
             }
         }
         return $result;
+    }
+
+    private function getBackendUser(): BackendUserAuthentication
+    {
+        return $GLOBALS['BE_USER'];
     }
 }

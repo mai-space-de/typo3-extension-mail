@@ -182,12 +182,15 @@ class MailQueueService
 
             $recipients = $mailQueue->getRecipientsArray();
             foreach ($recipients as $email => $name) {
-                $email = is_string($email) ? $email : (string)$name;
-                $name = is_string($email) ? $name : '';
-                if (!empty($name)) {
-                    $message->addTo(new \Symfony\Component\Mime\Address($email, $name));
+                $emailStr = is_string($email) ? $email : (string)$name;
+                $nameStr = is_string($email) ? (string)$name : '';
+                if ($emailStr === '' || !filter_var($emailStr, FILTER_VALIDATE_EMAIL)) {
+                    continue;
+                }
+                if ($nameStr !== '') {
+                    $message->addTo(new \Symfony\Component\Mime\Address($emailStr, $nameStr));
                 } else {
-                    $message->addTo($email);
+                    $message->addTo($emailStr);
                 }
             }
 

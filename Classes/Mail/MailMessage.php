@@ -32,7 +32,7 @@ class MailMessage extends CoreMailMessage
         $fromAddresses = $this->getFrom();
         $firstFrom = reset($fromAddresses);
         $senderString = $firstFrom instanceof Address
-            ? $firstFrom->getName() . ':' . $firstFrom->getAddress()
+            ? ($firstFrom->getName() !== '' ? $firstFrom->getName() . ':' . $firstFrom->getAddress() : $firstFrom->getAddress())
             : (string)$firstFrom;
 
         $recipients = [];
