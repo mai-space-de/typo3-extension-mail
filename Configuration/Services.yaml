@@ -1,0 +1,20 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Maispace\MaiMail\:
+    resource: '../Classes/*'
+
+  Maispace\MaiMail\EventListener\MailQueueEventListener:
+    tags:
+      - name: event.listener
+        identifier: 'mai-mail/mail-queued'
+        event: Maispace\MaiMail\Event\MailQueuedEvent
+      - name: event.listener
+        identifier: 'mai-mail/mail-sent'
+        event: Maispace\MaiMail\Event\MailSentEvent
+      - name: event.listener
+        identifier: 'mai-mail/mail-failed'
+        event: Maispace\MaiMail\Event\MailFailedEvent

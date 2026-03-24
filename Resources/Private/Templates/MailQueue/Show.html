@@ -1,0 +1,75 @@
+<f:layout name="Default" />
+<f:section name="content">
+    <div class="module-maimail">
+        <h1>Mail Queue Entry #{mail.uid}</h1>
+
+        <f:flashMessages />
+
+        <f:link.action action="index" class="btn btn-default" style="margin-bottom:1rem;">&larr; Back to Queue</f:link.action>
+
+        <f:if condition="{mail}">
+            <f:then>
+                <table class="table table-bordered">
+                    <tr><th style="width:150px;">Subject</th><td>{mail.subject}</td></tr>
+                    <tr><th>Sender</th><td>{mail.sender}</td></tr>
+                    <tr><th>Recipients</th><td><pre>{mail.recipients}</pre></td></tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>
+                            <span class="label label-{f:if(condition: '{mail.status} == sent', then: 'success', else: f:if(condition: '{mail.status} == failed', then: 'danger', else: 'warning'))}">
+                                {mail.status}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr><th>Priority</th><td>{mail.priority}</td></tr>
+                    <tr>
+                        <th>Scheduled At</th>
+                        <td>
+                            <f:if condition="{mail.scheduledAt}">
+                                <f:format.date date="{mail.scheduledAt}" format="Y-m-d H:i:s" />
+                            </f:if>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Sent At</th>
+                        <td>
+                            <f:if condition="{mail.sentAt}">
+                                <f:format.date date="{mail.sentAt}" format="Y-m-d H:i:s" />
+                            </f:if>
+                        </td>
+                    </tr>
+                    <tr><th>Retry Count</th><td>{mail.retryCount}</td></tr>
+                    <tr>
+                        <th>Error Message</th>
+                        <td>
+                            <f:if condition="{mail.errorMessage}">
+                                <pre style="color:red;">{mail.errorMessage}</pre>
+                            </f:if>
+                        </td>
+                    </tr>
+                    <tr><th>Attachments</th><td><pre>{mail.attachments}</pre></td></tr>
+                </table>
+
+                <h3>Body</h3>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <f:format.raw>{mail.body}</f:format.raw>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <f:if condition="{mail.status} != 'sent'">
+                        <f:link.action action="sendNow" arguments="{uid: mail.uid}" class="btn btn-primary">Send Now</f:link.action>
+                    </f:if>
+                    <f:if condition="{mail.status} == 'failed'">
+                        <f:link.action action="retry" arguments="{uid: mail.uid}" class="btn btn-warning">Retry</f:link.action>
+                    </f:if>
+                    <f:link.action action="delete" arguments="{uid: mail.uid}" class="btn btn-danger" additionalAttributes="{onclick: 'return confirm(\'Delete this mail?\')'}">Delete</f:link.action>
+                </div>
+            </f:then>
+            <f:else>
+                <div class="callout callout-danger">Mail queue entry not found.</div>
+            </f:else>
+        </f:if>
+    </div>
+</f:section>

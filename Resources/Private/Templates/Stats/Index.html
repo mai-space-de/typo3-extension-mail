@@ -1,0 +1,68 @@
+<f:layout name="Default" />
+<f:section name="content">
+    <div class="module-maimail">
+        <h1>Mail Statistics</h1>
+
+        <f:flashMessages />
+
+        <div class="row" style="margin-bottom:2rem;">
+            <div class="col-md-2">
+                <div class="panel panel-default text-center">
+                    <div class="panel-body">
+                        <h2>{stats.total}</h2>
+                        <p>Total</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="panel panel-info text-center">
+                    <div class="panel-body">
+                        <h2>{stats.queued}</h2>
+                        <p>Queued</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="panel panel-warning text-center">
+                    <div class="panel-body">
+                        <h2>{stats.sending}</h2>
+                        <p>Sending</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="panel panel-success text-center">
+                    <div class="panel-body">
+                        <h2>{stats.sent}</h2>
+                        <p>Sent</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="panel panel-danger text-center">
+                    <div class="panel-body">
+                        <h2>{stats.failed}</h2>
+                        <p>Failed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="panel panel-warning text-center">
+                    <div class="panel-body">
+                        <h2>{stats.retry}</h2>
+                        <p>Retry</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3>Success Rate</h3>
+        <div class="progress">
+            <div class="progress-bar progress-bar-success" role="progressbar"
+                 style="width: {successRate}%;"
+                 aria-valuenow="{successRate}" aria-valuemin="0" aria-valuemax="100">
+                {successRate}%
+            </div>
+        </div>
+    </div>
+</f:section>
