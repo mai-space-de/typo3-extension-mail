@@ -99,7 +99,10 @@ class MailQueueRepository extends Repository
             ->addSelectLiteral('COUNT(*) AS cnt')
             ->from('tx_maimail_domain_model_mailqueue')
             ->where(
-                $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)),
+                    $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
+                )
             )
             ->groupBy('status')
             ->executeQuery()
@@ -122,6 +125,36 @@ class MailQueueRepository extends Repository
     {
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
+        return $query->execute();
+    }
+
+    /**
+     * Find queued mails that are due, limited to a given batch size for efficient processing.
+     *
+     * @return \TYPO3\CMS\Extbase\Persistence\QueryResultInterface<MailQueue>
+     */
+    public function findQueuedWithLimit(int $limit): \TYPO3\CMS\Extbase\Persistence\QueryResultInterface
+    {
+        $query = $this->createQuery();
+        $query->getQuerySettings()->setRespectStoragePage(false);
+
+        $now = new \DateTimeImmutable();
+
+        $query->matching(
+            $query->logicalAnd(
+                $query->logicalOr(
+                    $query->equals('status', MailQueue::STATUS_QUEUED),
+                    $query->equals('status', MailQueue::STATUS_RETRY)
+                ),
+                $query->logicalOr(
+                    $query->equals('scheduledAt', null),
+                    $query->lessThanOrEqual('scheduledAt', $now)
+                )
+            )
+        );
+
+        $query->setLimit($limit);
+
         return $query->execute();
     }
 }

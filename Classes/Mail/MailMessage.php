@@ -30,6 +30,9 @@ class MailMessage extends CoreMailMessage
         );
 
         $fromAddresses = $this->getFrom();
+        if (empty($fromAddresses)) {
+            throw new \InvalidArgumentException('Cannot queue message: no From address set.');
+        }
         $firstFrom = reset($fromAddresses);
         $senderString = $firstFrom instanceof Address
             ? ($firstFrom->getName() !== '' ? $firstFrom->getName() . ':' . $firstFrom->getAddress() : $firstFrom->getAddress())
@@ -42,6 +45,10 @@ class MailMessage extends CoreMailMessage
             } else {
                 $recipients[(string)$address] = '';
             }
+        }
+
+        if (empty($recipients)) {
+            throw new \InvalidArgumentException('Cannot queue message: no To recipients set.');
         }
 
         $body = $this->getHtmlBody() ?? $this->getTextBody() ?? '';

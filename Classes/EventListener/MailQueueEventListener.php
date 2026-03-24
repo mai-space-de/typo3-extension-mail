@@ -20,7 +20,8 @@ final class MailQueueEventListener
 {
     public function __construct(
         private readonly LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     public function __invoke(MailQueuedEvent|MailSentEvent|MailFailedEvent $event): void
     {

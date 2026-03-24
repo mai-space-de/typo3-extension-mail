@@ -9,6 +9,9 @@
             <trans-unit id="task.mailqueue.description">
                 <source>Processes the mail queue and sends pending emails.</source>
             </trans-unit>
+            <trans-unit id="task.mailqueue.batchSize">
+                <source>Batch size (0 = send all due mails)</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

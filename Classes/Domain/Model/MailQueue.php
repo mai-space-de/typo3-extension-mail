@@ -74,7 +74,7 @@ class MailQueue extends AbstractEntity
             return [];
         }
         $decoded = json_decode($this->recipients, true);
-        return is_array($decoded) ? $decoded : [];
+        return \is_array($decoded) ? $decoded : [];
     }
 
     public function getSubject(): string
@@ -118,7 +118,7 @@ class MailQueue extends AbstractEntity
             return [];
         }
         $decoded = json_decode($this->attachments, true);
-        return is_array($decoded) ? $decoded : [];
+        return \is_array($decoded) ? $decoded : [];
     }
 
     public function getStatus(): string

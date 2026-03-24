@@ -14,7 +14,8 @@ final class MailFailedEvent
     public function __construct(
         private readonly MailQueue $mailQueue,
         private readonly \Throwable $exception
-    ) {}
+    ) {
+    }
 
     public function getMailQueue(): MailQueue
     {

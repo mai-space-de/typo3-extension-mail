@@ -16,7 +16,8 @@ class InboxController extends ActionController
 {
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory
-    ) {}
+    ) {
+    }
 
     /**
      * List inbox messages.
@@ -119,7 +120,7 @@ class InboxController extends ActionController
      */
     private function fetchMessages(array $config): array
     {
-        if (!extension_loaded('imap')) {
+        if (!\extension_loaded('imap')) {
             throw new \RuntimeException('PHP imap extension is not loaded. Please enable it to use the inbox feature.');
         }
 
@@ -140,7 +141,7 @@ class InboxController extends ActionController
                     'number' => $i,
                     'subject' => isset($header->subject) ? imap_utf8($header->subject) : '(no subject)',
                     'from' => isset($header->from[0]) ? $this->formatAddress($header->from[0]) : '',
-                    'date' => isset($header->date) ? $header->date : '',
+                    'date' => $header->date ?? '',
                     'seen' => isset($header->Seen) && $header->Seen === 'S',
                 ];
             }
@@ -159,7 +160,7 @@ class InboxController extends ActionController
      */
     private function fetchMessage(array $config, int $messageNumber): array
     {
-        if (!extension_loaded('imap')) {
+        if (!\extension_loaded('imap')) {
             throw new \RuntimeException('PHP imap extension is not loaded.');
         }
 
@@ -179,7 +180,7 @@ class InboxController extends ActionController
                 'subject' => isset($header->subject) ? imap_utf8($header->subject) : '(no subject)',
                 'from' => isset($header->from[0]) ? $this->formatAddress($header->from[0]) : '',
                 'to' => isset($header->to[0]) ? $this->formatAddress($header->to[0]) : '',
-                'date' => isset($header->date) ? $header->date : '',
+                'date' => $header->date ?? '',
                 'body' => $body,
             ];
         } finally {
@@ -194,7 +195,7 @@ class InboxController extends ActionController
      */
     private function deleteMessage(array $config, int $messageNumber): void
     {
-        if (!extension_loaded('imap')) {
+        if (!\extension_loaded('imap')) {
             throw new \RuntimeException('PHP imap extension is not loaded.');
         }
 
@@ -235,15 +236,27 @@ class InboxController extends ActionController
      */
     private function buildMailboxString(array $config): string
     {
-        $encryption = $config['encryption'] === 'ssl' ? '/ssl' : '';
+        $encryptionRaw = strtolower((string)($config['encryption'] ?? ''));
+        switch ($encryptionRaw) {
+            case 'ssl':
+                $encryption = '/ssl';
+                break;
+            case 'tls':
+                $encryption = '/tls';
+                break;
+            case '':
+            case 'none':
+                $encryption = '';
+                break;
+            default:
+                throw new \InvalidArgumentException('Invalid encryption setting: ' . $encryptionRaw);
+        }
         $protocol = strtolower((string)$config['protocol']);
         return '{' . $config['host'] . ':' . $config['port'] . '/' . $protocol . $encryption . '}INBOX';
     }
 
     /**
      * Format an address object into a readable string.
-     *
-     * @param object $address
      */
     private function formatAddress(object $address): string
     {

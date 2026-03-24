@@ -6,7 +6,6 @@ namespace Maispace\MaiMail\Tests\Unit\Service;
 
 use Maispace\MaiMail\Domain\Model\MailQueue;
 use Maispace\MaiMail\Domain\Repository\MailQueueRepository;
-use Maispace\MaiMail\Event\MailFailedEvent;
 use Maispace\MaiMail\Event\MailQueuedEvent;
 use Maispace\MaiMail\Service\MailQueueService;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -16,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\NullLogger;
 use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 
 #[CoversClass(MailQueueService::class)]
 final class MailQueueServiceTest extends TestCase
@@ -185,7 +185,26 @@ final class MailQueueServiceTest extends TestCase
         $mail1 = new MailQueue();
         $mail2 = new MailQueue();
 
-        $queryResult = new \ArrayObject([$mail1, $mail2]);
+        $items = [$mail1, $mail2];
+        $position = 0;
+
+        /** @var QueryResultInterface&MockObject $queryResult */
+        $queryResult = $this->createMock(QueryResultInterface::class);
+        $queryResult->method('rewind')->willReturnCallback(static function () use (&$position): void {
+            $position = 0;
+        });
+        $queryResult->method('current')->willReturnCallback(static function () use (&$position, $items): mixed {
+            return $items[$position];
+        });
+        $queryResult->method('key')->willReturnCallback(static function () use (&$position): int {
+            return $position;
+        });
+        $queryResult->method('next')->willReturnCallback(static function () use (&$position): void {
+            ++$position;
+        });
+        $queryResult->method('valid')->willReturnCallback(static function () use (&$position, $items): bool {
+            return $position < \count($items);
+        });
 
         $this->repository
             ->method('findAll')

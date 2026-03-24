@@ -39,7 +39,8 @@ configure the following options:
    :type: string
    :default: (empty)
 
-   Password for the inbox account. Stored encrypted in ``LocalConfiguration.php``.
+   Password for the inbox account. Stored in plain text in ``LocalConfiguration.php``;
+   ensure your TYPO3 instance is properly secured.
 
 .. confval:: inboxEncryption
    :type: string

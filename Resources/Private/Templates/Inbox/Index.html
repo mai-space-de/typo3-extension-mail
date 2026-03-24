@@ -47,7 +47,10 @@
                                     <td>{msg.number}</td>
                                     <td>
                                         <f:link.action action="read" arguments="{messageNumber: msg.number}">
-                                            {f:if(condition: msg.seen, then: '', else: '<strong>')}<f:format.raw>{msg.subject}</f:format.raw>{f:if(condition: msg.seen, then: '', else: '</strong>')}
+                                            <f:if condition="{msg.seen}">
+                                                <f:then>{msg.subject}</f:then>
+                                                <f:else><strong>{msg.subject}</strong></f:else>
+                                            </f:if>
                                         </f:link.action>
                                     </td>
                                     <td>{msg.from}</td>

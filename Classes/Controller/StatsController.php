@@ -17,7 +17,8 @@ class StatsController extends ActionController
     public function __construct(
         private readonly MailQueueService $mailQueueService,
         private readonly ModuleTemplateFactory $moduleTemplateFactory
-    ) {}
+    ) {
+    }
 
     /**
      * Show statistics dashboard.

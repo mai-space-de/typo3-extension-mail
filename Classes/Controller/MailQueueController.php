@@ -21,7 +21,8 @@ class MailQueueController extends ActionController
         private readonly MailQueueRepository $mailQueueRepository,
         private readonly MailQueueService $mailQueueService,
         private readonly ModuleTemplateFactory $moduleTemplateFactory
-    ) {}
+    ) {
+    }
 
     /**
      * List all queued mails.
@@ -115,7 +116,7 @@ class MailQueueController extends ActionController
             return $this->redirect('index');
         }
 
-        $success = $this->mailQueueService->retry($uid);
+        $success = $this->mailQueueService->sendNow($uid);
         if ($success) {
             $this->addFlashMessage('Mail sent successfully.', 'Success');
         } else {

@@ -13,7 +13,8 @@ final class MailSentEvent
 {
     public function __construct(
         private readonly MailQueue $mailQueue
-    ) {}
+    ) {
+    }
 
     public function getMailQueue(): MailQueue
     {

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Maispace\MaiMail\EventListener\MailQueueEventListener;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 defined('TYPO3') or die();

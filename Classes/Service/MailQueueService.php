@@ -6,9 +6,9 @@ namespace Maispace\MaiMail\Service;
 
 use Maispace\MaiMail\Domain\Model\MailQueue;
 use Maispace\MaiMail\Domain\Repository\MailQueueRepository;
+use Maispace\MaiMail\Event\MailFailedEvent;
 use Maispace\MaiMail\Event\MailQueuedEvent;
 use Maispace\MaiMail\Event\MailSentEvent;
-use Maispace\MaiMail\Event\MailFailedEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Mail\MailMessage;
@@ -24,7 +24,8 @@ class MailQueueService
         private readonly PersistenceManagerInterface $persistenceManager,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     /**
      * Add a new mail to the queue.
@@ -44,7 +45,7 @@ class MailQueueService
         $mailQueue = new MailQueue();
         $mailQueue->setSender($sender);
         $mailQueue->setRecipients(
-            is_array($recipients) ? json_encode($recipients, JSON_THROW_ON_ERROR) : json_encode([$recipients => ''], JSON_THROW_ON_ERROR)
+            \is_array($recipients) ? json_encode($recipients, JSON_THROW_ON_ERROR) : json_encode([$recipients => ''], JSON_THROW_ON_ERROR)
         );
         $mailQueue->setSubject($subject);
         $mailQueue->setBody($body);
@@ -110,17 +111,26 @@ class MailQueueService
      */
     public function sendBatch(int $limit): int
     {
-        $queued = $this->mailQueueRepository->findQueued();
+        $queued = $this->mailQueueRepository->findQueuedWithLimit($limit);
         $count = 0;
         foreach ($queued as $mailQueue) {
-            if ($count >= $limit) {
-                break;
-            }
             if ($this->sendSingle($mailQueue)) {
                 $count++;
             }
         }
         return $count;
+    }
+
+    /**
+     * Immediately send a queued mail by UID without changing its semantic status to retry.
+     */
+    public function sendNow(int $uid): bool
+    {
+        $mailQueue = $this->mailQueueRepository->findByUid($uid);
+        if ($mailQueue === null) {
+            return false;
+        }
+        return $this->sendSingle($mailQueue);
     }
 
     /**
@@ -182,8 +192,8 @@ class MailQueueService
 
             $recipients = $mailQueue->getRecipientsArray();
             foreach ($recipients as $email => $name) {
-                $emailStr = is_string($email) ? $email : (string)$name;
-                $nameStr = is_string($email) ? (string)$name : '';
+                $emailStr = \is_string($email) ? $email : (string)$name;
+                $nameStr = \is_string($email) ? (string)$name : '';
                 if ($emailStr === '' || !filter_var($emailStr, FILTER_VALIDATE_EMAIL)) {
                     continue;
                 }
@@ -192,6 +202,12 @@ class MailQueueService
                 } else {
                     $message->addTo($emailStr);
                 }
+            }
+
+            if ($message->getTo() === []) {
+                throw new \RuntimeException(
+                    'No valid recipients found for mail queue entry ' . $mailQueue->getUid()
+                );
             }
 
             $message->subject($mailQueue->getSubject());

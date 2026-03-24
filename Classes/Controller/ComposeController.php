@@ -19,7 +19,8 @@ class ComposeController extends ActionController
     public function __construct(
         private readonly MailQueueService $mailQueueService,
         private readonly ModuleTemplateFactory $moduleTemplateFactory
-    ) {}
+    ) {
+    }
 
     /**
      * Show compose form.
@@ -47,7 +48,7 @@ class ComposeController extends ActionController
     public function sendAction(): ResponseInterface
     {
         $formData = $this->request->getArgument('formData');
-        if (!is_array($formData)) {
+        if (!\is_array($formData)) {
             $formData = [];
         }
 
@@ -68,8 +69,26 @@ class ComposeController extends ActionController
             return $this->redirect('index');
         }
 
+        if (filter_var($sender, FILTER_VALIDATE_EMAIL) === false) {
+            $this->addFlashMessage(
+                'Sender must be a valid email address.',
+                'Validation Error',
+                ContextualFeedbackSeverity::ERROR
+            );
+            return $this->redirect('index');
+        }
+
         // Parse recipients (comma separated list of email or "Name <email>")
         $recipients = $this->parseRecipients($recipientsRaw);
+
+        if (empty($recipients)) {
+            $this->addFlashMessage(
+                'No valid recipients found.',
+                'Validation Error',
+                ContextualFeedbackSeverity::ERROR
+            );
+            return $this->redirect('index');
+        }
 
         $scheduledAt = null;
         if ($sendMode === 'scheduled' && $scheduledAtRaw !== '') {
@@ -96,7 +115,7 @@ class ComposeController extends ActionController
         );
 
         if ($sendMode === 'now') {
-            $sent = $this->mailQueueService->retry($mailQueue->getUid());
+            $sent = $this->mailQueueService->sendNow($mailQueue->getUid());
             if ($sent) {
                 $this->addFlashMessage('Email sent successfully.', 'Success');
             } else {
