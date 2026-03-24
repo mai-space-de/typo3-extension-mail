@@ -10,10 +10,15 @@ on:
       - main
       - develop
 
+permissions:
+  contents: read
+
 jobs:
   php-lint:
     name: PHP Lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         php-version: ['8.2', '8.3']
@@ -39,6 +44,8 @@ jobs:
   php-cs-fixer:
     name: PHP CS Fixer
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -58,6 +65,8 @@ jobs:
   unit-tests:
     name: Unit Tests (PHP ${{ matrix.php-version }})
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         php-version: ['8.2', '8.3']
