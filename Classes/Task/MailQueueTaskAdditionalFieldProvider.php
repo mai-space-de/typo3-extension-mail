@@ -16,7 +16,7 @@ class MailQueueTaskAdditionalFieldProvider extends AbstractAdditionalFieldProvid
 {
     public function getAdditionalFields(
         array &$taskInfo,
-        ?AbstractTask $task,
+        $task,
         SchedulerModuleController $schedulerModule
     ): array {
         $currentSchedulerModuleAction = $schedulerModule->getCurrentAction();

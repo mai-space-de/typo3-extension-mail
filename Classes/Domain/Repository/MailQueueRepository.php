@@ -99,7 +99,7 @@ class MailQueueRepository extends Repository
             ->addSelectLiteral('COUNT(*) AS cnt')
             ->from('tx_maimail_domain_model_mailqueue')
             ->where(
-                $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->and(
                     $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)),
                     $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
                 )
