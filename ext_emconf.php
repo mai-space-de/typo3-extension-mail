@@ -1,18 +1,15 @@
 <?php
-
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Mai Mail',
-    'description' => 'TYPO3 mail extension with queue management, backend module, MJML rendering support and site-based theming',
-    'category' => 'be',
-    'author' => 'Mai Space',
-    'author_email' => 'info@mai.space',
-    'author_company' => 'Mai Space',
-    'state' => 'beta',
+    'description' => 'The **canonical mail dispatch layer** for the entire extension set. Provides an asynchronous queue, backend monitoring, site-based theming, and optional MJML rendering via `mai_mjml`. All other extensions that send email declare `maispace/mai-mail` as a dependency. `cpsit/typo3-mailqueue` must not appear in any extension\'s `require` section.',
+    'category' => 'module',
+    'author' => 'Maispace',
+    'author_email' => '',
+    'state' => 'stable',
     'version' => '1.0.0',
     'constraints' => [
         'depends' => [
-            'php' => '8.2.0-0.0.0',
-            'typo3' => '13.4.0-13.9.99',
+            'typo3' => '13.4.0-14.99.99',
         ],
         'conflicts' => [],
         'suggests' => [],
