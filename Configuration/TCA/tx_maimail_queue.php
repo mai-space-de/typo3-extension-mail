@@ -17,7 +17,6 @@ return (new Table($lang('table.tx_maimail_queue')))
     ->setDefaultConfig()
     ->setLabel('subject')
     ->setAlternativeLabelFields('recipient')
-    ->setSearchFields('recipient, subject')
     ->setIconFile('EXT:mai_mail/Resources/Public/Icons/tx_maimail_queue.svg')
     ->setDefaultSorting('ORDER BY scheduled_at ASC')
     ->recordsAreOnlyAllowedInRoot()
@@ -25,7 +24,7 @@ return (new Table($lang('table.tx_maimail_queue')))
     ->addColumn(
         'recipient',
         $lang('tx_maimail_queue.recipient'),
-        (new EmailConfig())->setEval('required')->setReadOnly()
+        (new EmailConfig())->setRequired()->setReadOnly()
     )
     ->addColumn(
         'subject',
