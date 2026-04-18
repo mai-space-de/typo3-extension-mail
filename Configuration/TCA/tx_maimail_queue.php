@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+use Maispace\MaiBase\TableConfigurationArray\FieldConfig\DatetimeConfig;
+use Maispace\MaiBase\TableConfigurationArray\FieldConfig\EmailConfig;
+use Maispace\MaiBase\TableConfigurationArray\FieldConfig\InputConfig;
+use Maispace\MaiBase\TableConfigurationArray\FieldConfig\NumberConfig;
+use Maispace\MaiBase\TableConfigurationArray\FieldConfig\SelectSingleConfig;
+use Maispace\MaiBase\TableConfigurationArray\FieldConfig\TextConfig;
 use Maispace\MaiBase\TableConfigurationArray\Helper;
 use Maispace\MaiBase\TableConfigurationArray\Table;
 
@@ -19,51 +25,48 @@ return (new Table($lang('table.tx_maimail_queue')))
     ->addColumn(
         'recipient',
         $lang('tx_maimail_queue.recipient'),
-        ['type' => 'email', 'eval' => 'required', 'readOnly' => true]
+        (new EmailConfig())->setEval('required')->setReadOnly()
     )
     ->addColumn(
         'subject',
         $lang('tx_maimail_queue.subject'),
-        ['type' => 'input', 'size' => 50, 'max' => 255, 'eval' => 'trim', 'readOnly' => true]
+        (new InputConfig())->setSize(50)->setMax(255)->setEval('trim')->setReadOnly()
     )
     ->addColumn(
         'body',
         $lang('tx_maimail_queue.body'),
-        ['type' => 'text', 'rows' => 20, 'cols' => 80, 'readOnly' => true]
+        (new TextConfig())->setRows(20)->setCols(80)->setReadOnly()
     )
     ->addColumn(
         'status',
         $lang('tx_maimail_queue.status'),
-        [
-            'type' => 'select',
-            'renderType' => 'selectSingle',
-            'items' => [
+        (new SelectSingleConfig())
+            ->setItems([
                 ['label' => $lang('tx_maimail_queue.status.pending'), 'value' => 'pending'],
                 ['label' => $lang('tx_maimail_queue.status.sent'), 'value' => 'sent'],
                 ['label' => $lang('tx_maimail_queue.status.failed'), 'value' => 'failed'],
-            ],
-            'default' => 'pending',
-        ]
+            ])
+            ->setDefault('pending')
     )
     ->addColumn(
         'scheduled_at',
         $lang('tx_maimail_queue.scheduled_at'),
-        ['type' => 'datetime', 'format' => 'datetime']
+        (new DatetimeConfig())->setFormat('datetime')
     )
     ->addColumn(
         'sent_at',
         $lang('tx_maimail_queue.sent_at'),
-        ['type' => 'datetime', 'format' => 'datetime', 'readOnly' => true]
+        (new DatetimeConfig())->setFormat('datetime')->setReadOnly()
     )
     ->addColumn(
         'retry_count',
         $lang('tx_maimail_queue.retry_count'),
-        ['type' => 'number', 'format' => 'integer', 'default' => 0, 'readOnly' => true]
+        (new NumberConfig())->setFormat('integer')->setDefault(0)->setReadOnly()
     )
     ->addColumn(
         'error',
         $lang('tx_maimail_queue.error'),
-        ['type' => 'text', 'rows' => 5, 'cols' => 80, 'readOnly' => true]
+        (new TextConfig())->setRows(5)->setCols(80)->setReadOnly()
     )
     ->addPalette(
         'dates',

@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use Maispace\MaiBase\TableConfigurationArray\FieldConfig\DatetimeConfig;
+use Maispace\MaiBase\TableConfigurationArray\FieldConfig\EmailConfig;
+use Maispace\MaiBase\TableConfigurationArray\FieldConfig\InputConfig;
+use Maispace\MaiBase\TableConfigurationArray\FieldConfig\SelectSingleConfig;
 use Maispace\MaiBase\TableConfigurationArray\Helper;
 use Maispace\MaiBase\TableConfigurationArray\Table;
 
@@ -20,36 +24,33 @@ return (new Table($lang('table.tx_maimail_log')))
     ->addColumn(
         'recipient',
         $lang('tx_maimail_log.recipient'),
-        ['type' => 'email', 'readOnly' => true]
+        (new EmailConfig())->setReadOnly()
     )
     ->addColumn(
         'subject',
         $lang('tx_maimail_log.subject'),
-        ['type' => 'input', 'size' => 50, 'max' => 255, 'readOnly' => true]
+        (new InputConfig())->setSize(50)->setMax(255)->setReadOnly()
     )
     ->addColumn(
         'status',
         $lang('tx_maimail_log.status'),
-        [
-            'type' => 'select',
-            'renderType' => 'selectSingle',
-            'items' => [
+        (new SelectSingleConfig())
+            ->setItems([
                 ['label' => $lang('tx_maimail_log.status.sent'), 'value' => 'sent'],
                 ['label' => $lang('tx_maimail_log.status.failed'), 'value' => 'failed'],
                 ['label' => $lang('tx_maimail_log.status.bounced'), 'value' => 'bounced'],
-            ],
-            'readOnly' => true,
-        ]
+            ])
+            ->setReadOnly()
     )
     ->addColumn(
         'sent_at',
         $lang('tx_maimail_log.sent_at'),
-        ['type' => 'datetime', 'format' => 'datetime', 'readOnly' => true]
+        (new DatetimeConfig())->setFormat('datetime')->setReadOnly()
     )
     ->addColumn(
         'mail_identifier',
         $lang('tx_maimail_log.mail_identifier'),
-        ['type' => 'input', 'size' => 50, 'max' => 255, 'readOnly' => true]
+        (new InputConfig())->setSize(50)->setMax(255)->setReadOnly()
     )
     ->addTypeShowItem(
         '0',
