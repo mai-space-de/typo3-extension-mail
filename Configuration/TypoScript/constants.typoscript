@@ -1,0 +1,9 @@
+# mai_mail constants
+plugin.tx_maimail {
+    settings {
+        defaultSenderName = BGM Pulheim
+        defaultSenderEmail = noreply@bgm-pulheim.org
+        headerTemplate =
+        footerTemplate =
+    }
+}

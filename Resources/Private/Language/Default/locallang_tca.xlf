@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2026-04-19T00:00:00Z" product-name="mai_mail">
+        <header/>
+        <body>
+            <trans-unit id="table.tx_maimail_queue">
+                <source>Mail Queue</source>
+            </trans-unit>
+            <trans-unit id="table.tx_maimail_log">
+                <source>Mail Log</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.subject">
+                <source>Subject</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.recipient">
+                <source>Recipient</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.body">
+                <source>Body</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.status">
+                <source>Status</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.status.queued">
+                <source>Queued</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.status.processing">
+                <source>Processing</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.status.sent">
+                <source>Sent</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.status.failed">
+                <source>Failed</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.retry_count">
+                <source>Retry count</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.error_message">
+                <source>Error message</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.scheduled_at">
+                <source>Scheduled at</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_queue.sent_at">
+                <source>Sent at</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_log.subject">
+                <source>Subject</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_log.recipient">
+                <source>Recipient</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_log.status">
+                <source>Status</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_log.status.sent">
+                <source>Sent</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_log.status.failed">
+                <source>Failed</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_log.sent_at">
+                <source>Sent at</source>
+            </trans-unit>
+            <trans-unit id="tx_maimail_log.error_message">
+                <source>Error message</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

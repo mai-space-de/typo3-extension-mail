@@ -6,4 +6,15 @@ services:
 
   Maispace\MaiMail\:
     resource: '../Classes/*'
-    exclude: '../Classes/Domain/Model/*'
+    exclude:
+      - '../Classes/Domain/Model/*'
+
+  Maispace\MaiMail\Controller\Backend\MailBackendController:
+    public: true
+
+  Maispace\MaiMail\Command\ProcessMailQueueCommand:
+    tags:
+      - name: console.command
+        command: 'mail:process-queue'
+        description: 'Process the mail queue and dispatch pending emails'
+        schedulable: true

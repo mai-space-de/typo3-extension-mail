@@ -1,13 +1,21 @@
+# Features
+
 ## Mail Queue
 
-* Mail queue — asynchronous email queue with retry handling
-* Mail log — persistent log of sent emails with status tracking
+`mai_mail` stores pending emails in `tx_maimail_queue` and supports retry-based queue processing.
+
+## Mail Log
+
+Processed emails are persisted in `tx_maimail_log` for backend inspection and troubleshooting.
 
 ## Backend Module
 
-* Backend module — inspect, resend, and delete queued or failed emails
+Editors with admin access can inspect queued mail entries, review recent logs, and trigger resend/delete actions.
 
-## Theming & Rendering
+## Queue Worker
 
-* Site-based theming — per-site email header/footer templates
-* MJML rendering — render MJML templates to responsive HTML (requires `mai_mjml`)
+The `mail:process-queue` console command dispatches pending emails through TYPO3's `MailMessage` API.
+
+## Site-based Theming
+
+TypoScript settings expose configurable header and footer template paths for site-specific email theming.

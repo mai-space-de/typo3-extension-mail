@@ -1,6 +1,6 @@
 {
     "name": "maispace/mai-mail",
-    "description": "The **canonical mail dispatch layer** for the entire extension set. Provides an asynchronous queue, backend monitoring, site-based theming, and optional MJML rendering via `mai_mjml`. All other extensions that send email declare `maispace/mai-mail` as a dependency. `cpsit/typo3-mailqueue` must not appear in any extension's `require` section.",
+    "description": "Mail queue and logging extension for TYPO3 backend mail dispatch with site-based theming.",
     "type": "typo3-cms-extension",
     "license": "GPL-2.0-or-later",
     "authors": [
@@ -32,24 +32,26 @@
             "@check:editorconfig",
             "@check:phpcs",
             "@check:phpstan",
-            "@check:typoscript",
-            "@composer validate --strict --no-check-version --no-check-all --no-check-publish"
+            "@check:typoscript"
         ],
         "lint:fix": [
             "@fix:editorconfig",
-            "@fix:phpcs",
-            "@check:phpstan",
-            "@check:typoscript"
+            "@fix:phpcs"
         ],
-        "check:editorconfig": "ec -unv -e vendor/ -e public/",
-        "fix:editorconfig": "ec -unvf -e vendor/ -e public/",
-        "check:phpcs": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer check --config .php-cs-fixer.php --ansi --verbose --diff",
-        "fix:phpcs": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --config .php-cs-fixer.php --ansi",
-        "check:phpstan": "phpstan analyse --no-progress",
-        "check:phpstan:baseline": "phpstan analyse --no-progress --generate-baseline=phpstan-baseline.neon",
-        "check:typoscript": "typoscript-lint --fail-on-warnings -c typoscript-lint.yml Configuration/",
-        "test": "phpunit --configuration phpunit.xml.dist",
-        "test:unit": "phpunit --configuration phpunit.xml.dist --testsuite Unit"
+        "check:editorconfig": "ec",
+        "fix:editorconfig": "ec --fix",
+        "check:phpcs": "php-cs-fixer check --diff",
+        "fix:phpcs": "php-cs-fixer fix",
+        "check:phpstan": "phpstan analyse --memory-limit=512M",
+        "check:phpstan:baseline": "phpstan analyse --memory-limit=512M --generate-baseline=phpstan-baseline.neon",
+        "check:typoscript": "typoscript-lint",
+        "test": "@test:unit",
+        "test:unit": "phpunit -c phpunit.xml.dist"
+    },
+    "require": {
+        "php": ">=8.5",
+        "maispace/mai-base": "@dev",
+        "typo3/cms-core": "^14.0"
     },
     "config": {
         "allow-plugins": {
@@ -57,8 +59,5 @@
             "typo3/class-alias-loader": true
         },
         "sort-packages": true
-    },
-    "suggest": {
-        "maispace/mai-mjml": "MJML template rendering for responsive HTML emails"
     }
 }

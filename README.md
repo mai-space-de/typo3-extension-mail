@@ -1,13 +1,6 @@
 # maispace/mai-mail — TYPO3 Extension
-[![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://www.php.net/)
-[![TYPO3](https://img.shields.io/badge/TYPO3-13.4%20LTS-orange)](https://typo3.org/)
-[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
-The **canonical mail dispatch layer** for the entire extension set. Provides an asynchronous queue, backend monitoring, site-based theming, and optional MJML rendering via `mai_mjml`. All other extensions that send email declare `maispace/mai-mail` as a dependency. `cpsit/typo3-mailqueue` must not appear in any extension's `require` section.
-
-**Requires:** TYPO3 13.4 LTS / 14.1 · PHP 8.2+
-
----
+Backend mail dispatch extension for TYPO3 with an async mail queue, persistent mail log, backend inspection module, queue worker command, and site-based theming hooks via TypoScript settings.
 
 ## Installation
 
@@ -15,26 +8,17 @@ The **canonical mail dispatch layer** for the entire extension set. Provides an 
 composer require maispace/mai-mail
 ```
 
----
+## Features
+
+- Async mail queue with retry tracking in `tx_maimail_queue`
+- Persistent mail log in `tx_maimail_log`
+- Backend module for queued and logged mails
+- Symfony console command `mail:process-queue`
+- Site-based mail theming via TypoScript constants
 
 ## Development
 
-### Linting
-
 ```bash
-composer lint:check     # Run all linters
-composer lint:fix       # Fix auto-fixable issues
+composer lint:check
+composer test
 ```
-
-### Testing
-
-```bash
-composer test           # Run all tests
-composer test:unit      # Run unit tests only
-```
-
----
-
-## License
-
-GPL-2.0-or-later — see [LICENSE](../../LICENSE) for details.

@@ -1,0 +1,21 @@
+# mai_mail setup
+plugin.tx_maimail {
+    settings {
+        defaultSenderName = {$plugin.tx_maimail.settings.defaultSenderName}
+        defaultSenderEmail = {$plugin.tx_maimail.settings.defaultSenderEmail}
+    }
+}
+
+module.tx_maimail {
+    view {
+        templateRootPaths {
+            0 = EXT:mai_mail/Resources/Private/Templates/
+        }
+        partialRootPaths {
+            0 = EXT:mai_mail/Resources/Private/Partials/
+        }
+        layoutRootPaths {
+            0 = EXT:mai_mail/Resources/Private/Layouts/
+        }
+    }
+}

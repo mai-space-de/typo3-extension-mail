@@ -1,6 +1,5 @@
 paths:
   - Configuration/
-
 linters:
   Indentation:
     enabled: true
