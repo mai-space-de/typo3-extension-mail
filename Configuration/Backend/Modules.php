@@ -9,7 +9,7 @@ return [
         'access' => 'admin',
         'workspaces' => 'online',
         'path' => '/module/mai-mail',
-        'iconIdentifier' => 'ext-maispace-mai_mail',
+        'iconIdentifier' => 'mai-backend-module',
         'labels' => 'LLL:EXT:mai_mail/Resources/Private/Language/locallang.xlf',
         'extensionName' => 'MaiMail',
         'controllerActions' => [

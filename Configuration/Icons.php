@@ -8,10 +8,10 @@ return [
     ],
     'tx-maimail-queue' => [
         'provider' => \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
-        'source' => 'EXT:mai_mail/Resources/Public/Icons/tx_maimail_queue.svg',
+        'source' => 'EXT:mai_base/Resources/Public/Icons/generic_table.svg',
     ],
     'tx-maimail-log' => [
         'provider' => \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
-        'source' => 'EXT:mai_mail/Resources/Public/Icons/tx_maimail_log.svg',
+        'source' => 'EXT:mai_base/Resources/Public/Icons/generic_table.svg',
     ],
 ];
