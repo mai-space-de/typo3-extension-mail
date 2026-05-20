@@ -14,8 +14,7 @@ final class MailLogRepository
 
     public function __construct(
         private readonly ConnectionPool $connectionPool,
-    ) {
-    }
+    ) {}
 
     /**
      * @return MailLog[]
@@ -39,12 +38,12 @@ final class MailLogRepository
     private static function hydrate(array $row): MailLog
     {
         return new MailLog(
-            uid: (int)$row['uid'],
-            subject: (string)$row['subject'],
-            recipient: (string)$row['recipient'],
-            status: (string)$row['status'],
-            sentAt: (int)$row['sent_at'],
-            errorMessage: (string)$row['error_message'],
+            uid: (int) $row['uid'],
+            subject: (string) $row['subject'],
+            recipient: (string) $row['recipient'],
+            status: (string) $row['status'],
+            sentAt: (int) $row['sent_at'],
+            errorMessage: (string) $row['error_message'],
         );
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maispace\MaiMail\Domain\Repository;
 
+use Doctrine\DBAL\ParameterType;
 use Maispace\MaiMail\Domain\Model\MailQueue;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
@@ -14,8 +15,7 @@ final class MailQueueRepository
 
     public function __construct(
         private readonly ConnectionPool $connectionPool,
-    ) {
-    }
+    ) {}
 
     /**
      * @return MailQueue[]
@@ -47,7 +47,7 @@ final class MailQueueRepository
             ->select('*')
             ->from(self::TABLE_NAME)
             ->where(
-                $queryBuilder->expr()->eq('status', $queryBuilder->createNamedParameter($status))
+                $queryBuilder->expr()->eq('status', $queryBuilder->createNamedParameter($status)),
             )
             ->orderBy('crdate', 'DESC')
             ->executeQuery()
@@ -65,7 +65,7 @@ final class MailQueueRepository
             ->select('*')
             ->from(self::TABLE_NAME)
             ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, ParameterType::INTEGER)),
             )
             ->executeQuery()
             ->fetchAssociative();
@@ -76,14 +76,14 @@ final class MailQueueRepository
     private static function hydrate(array $row): MailQueue
     {
         return new MailQueue(
-            uid: (int)$row['uid'],
-            subject: (string)$row['subject'],
-            recipient: (string)$row['recipient'],
-            body: (string)$row['body'],
-            status: (string)$row['status'],
-            retryCount: (int)$row['retry_count'],
-            scheduledAt: (int)$row['scheduled_at'],
-            sentAt: (int)$row['sent_at'],
+            uid: (int) $row['uid'],
+            subject: (string) $row['subject'],
+            recipient: (string) $row['recipient'],
+            body: (string) $row['body'],
+            status: (string) $row['status'],
+            retryCount: (int) $row['retry_count'],
+            scheduledAt: (int) $row['scheduled_at'],
+            sentAt: (int) $row['sent_at'],
         );
     }
 }

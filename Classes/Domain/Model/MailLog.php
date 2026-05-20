@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Maispace\MaiMail\Domain\Model;
@@ -12,8 +13,7 @@ final class MailLog
         private readonly string $status,
         private readonly int $sentAt,
         private readonly string $errorMessage,
-    ) {
-    }
+    ) {}
 
     public function getUid(): int
     {

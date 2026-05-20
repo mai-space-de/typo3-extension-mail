@@ -31,7 +31,7 @@ class MailBackendController extends AbstractBackendController
     public function indexAction(): ResponseInterface
     {
         $moduleTemplate = $this->createModuleTemplate();
-        $this->addShortcutButton($moduleTemplate);
+        $this->addShortcutButton($moduleTemplate, 'mai_mail', 'Mail Queue');
         $this->assignMultiple($moduleTemplate, [
             'queuedMails' => $this->mailQueueRepository->findAll(),
             'loggedMails' => $this->mailLogRepository->findRecent(50),
@@ -41,11 +41,11 @@ class MailBackendController extends AbstractBackendController
 
     public function resendAction(): ResponseInterface
     {
-        $uid = (int)$this->request->getArgument('uid');
+        $uid = (int) $this->request->getArgument('uid');
         $this->connectionPool->getConnectionForTable(self::TABLE_QUEUE)->update(
             self::TABLE_QUEUE,
             ['status' => 'queued', 'retry_count' => 0, 'error_message' => '', 'tstamp' => time()],
-            ['uid' => $uid]
+            ['uid' => $uid],
         );
         $this->flashSuccess('Mail re-queued successfully.');
         return $this->redirect('index');
@@ -53,10 +53,10 @@ class MailBackendController extends AbstractBackendController
 
     public function deleteAction(): ResponseInterface
     {
-        $uid = (int)$this->request->getArgument('uid');
+        $uid = (int) $this->request->getArgument('uid');
         $this->connectionPool->getConnectionForTable(self::TABLE_QUEUE)->delete(
             self::TABLE_QUEUE,
-            ['uid' => $uid]
+            ['uid' => $uid],
         );
         $this->flashSuccess('Mail deleted from queue.');
         return $this->redirect('index');

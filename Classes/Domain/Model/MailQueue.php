@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Maispace\MaiMail\Domain\Model;
@@ -14,8 +15,7 @@ final class MailQueue
         private readonly int $retryCount,
         private readonly int $scheduledAt,
         private readonly int $sentAt,
-    ) {
-    }
+    ) {}
 
     public function getUid(): int
     {

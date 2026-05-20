@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maispace\MaiMail\Command;
 
+use Doctrine\DBAL\ParameterType;
 use Maispace\MaiMail\Service\MailService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -40,7 +41,7 @@ final class ProcessMailQueueCommand extends Command
             ->from(self::TABLE_QUEUE)
             ->where(
                 $queryBuilder->expr()->eq('status', $queryBuilder->createNamedParameter('queued')),
-                $queryBuilder->expr()->lte('scheduled_at', $queryBuilder->createNamedParameter(time(), \PDO::PARAM_INT))
+                $queryBuilder->expr()->lte('scheduled_at', $queryBuilder->createNamedParameter(time(), ParameterType::INTEGER)),
             )
             ->orderBy('scheduled_at', 'ASC')
             ->executeQuery()
@@ -55,14 +56,14 @@ final class ProcessMailQueueCommand extends Command
         $failed = 0;
 
         foreach ($rows as $row) {
-            $statusBefore = (string)$row['status'];
+            $statusBefore = (string) $row['status'];
             $this->mailService->dispatch($row);
 
             $updated = $this->connectionPool->getQueryBuilderForTable(self::TABLE_QUEUE)
                 ->select('status')
                 ->from(self::TABLE_QUEUE)
                 ->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter((int)$row['uid'], \PDO::PARAM_INT))
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter((int) $row['uid'], ParameterType::INTEGER)),
                 )
                 ->executeQuery()
                 ->fetchOne();

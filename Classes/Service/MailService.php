@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Mail\MailMessage;
+use TYPO3\CMS\Core\Mail\Mailer;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 final class MailService
@@ -18,8 +19,8 @@ final class MailService
     public function __construct(
         private readonly ConnectionPool $connectionPool,
         private readonly ConfigurationManagerInterface $configurationManager,
-    ) {
-    }
+        private readonly Mailer $mailer,
+    ) {}
 
     public function queue(string $recipient, string $subject, string $htmlBody, ?DateTimeInterface $scheduledAt = null): void
     {
@@ -46,14 +47,14 @@ final class MailService
         $queueConnection = $this->connectionPool->getConnectionForTable(self::TABLE_QUEUE);
         $logConnection = $this->connectionPool->getConnectionForTable(self::TABLE_LOG);
         $timestamp = time();
-        $uid = (int)$row['uid'];
+        $uid = (int) $row['uid'];
 
         $queueConnection->update(self::TABLE_QUEUE, ['status' => 'processing', 'tstamp' => $timestamp], ['uid' => $uid]);
 
         try {
             $settings = $this->configurationManager->getConfiguration(
                 ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
-                'MaiMail'
+                'MaiMail',
             );
             $senderEmail = $settings['defaultSenderEmail']
                 ?? $GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress']
@@ -67,12 +68,12 @@ final class MailService
                 ->to($row['recipient'])
                 ->subject($row['subject'])
                 ->html($row['body']);
-            $message->send();
+            $this->mailer->send($message);
 
             $queueConnection->update(
                 self::TABLE_QUEUE,
                 ['status' => 'sent', 'sent_at' => $timestamp, 'error_message' => '', 'tstamp' => $timestamp],
-                ['uid' => $uid]
+                ['uid' => $uid],
             );
             $logConnection->insert(self::TABLE_LOG, [
                 'pid' => 0,
@@ -85,13 +86,13 @@ final class MailService
                 'error_message' => '',
             ]);
         } catch (\Throwable $throwable) {
-            $retryCount = (int)$row['retry_count'] + 1;
+            $retryCount = (int) $row['retry_count'] + 1;
             $status = $retryCount >= 3 ? 'failed' : 'queued';
 
             $queueConnection->update(
                 self::TABLE_QUEUE,
                 ['status' => $status, 'retry_count' => $retryCount, 'error_message' => $throwable->getMessage(), 'tstamp' => $timestamp],
-                ['uid' => $uid]
+                ['uid' => $uid],
             );
             $logConnection->insert(self::TABLE_LOG, [
                 'pid' => 0,
