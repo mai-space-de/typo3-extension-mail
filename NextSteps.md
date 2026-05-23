@@ -1,29 +1,18 @@
 # NextSteps — EXT:mai_mail
 
-Current state: scaffold + skeleton implementation.
-All files exist and PHP syntax is valid. The extension is **not yet functional** — several gaps
-must be resolved before it can be installed and used.
+Current state: Most scaffold items completed. Backend controller actions are implemented with test coverage.
+The extension is **partially functional** — several integration gaps remain before production readiness.
 
 ---
 
-## 1 · Backend controller — implement resend & delete actions
+## 1 · Backend controller — ✅ COMPLETED
 
 **File:** `Classes/Controller/Backend/MailBackendController.php`
 
-Both `resendAction()` and `deleteAction()` contain `// TODO` comments and do nothing useful.
-
-**resendAction** must:
-1. Read the `uid` argument from the request (`(int)$this->request->getArgument('uid')`).
-2. Reset `status = 'queued'`, `retry_count = 0`, `error_message = ''` via `ConnectionPool`.
-3. Flash success and redirect to `index`.
-
-**deleteAction** must:
-1. Read the `uid` argument from the request.
-2. Delete the row from `tx_maimail_queue` via `ConnectionPool`.
-3. Flash success and redirect to `index`.
-
-Note: `createModuleTemplate()` in `AbstractBackendController` takes no arguments — the current
-call is correct as-is.
+Both `resendAction()` and `deleteAction()` are fully implemented and tested:
+- ✅ `resendAction` resets queue entry status, retry count, error message, and timestamp
+- ✅ `deleteAction` deletes queue entries by uid
+- ✅ Unit tests added in `Tests/Unit/Controller/Backend/MailBackendControllerTest.php` (7 tests, all passing)
 
 ---
 
