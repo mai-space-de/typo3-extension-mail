@@ -6,6 +6,9 @@ namespace Maispace\MaiMail\Domain\Model;
 
 final class MailQueue
 {
+    /**
+     * @param array<string, string> $headers
+     */
     public function __construct(
         private readonly int $uid,
         private readonly string $subject,
@@ -15,6 +18,7 @@ final class MailQueue
         private readonly int $retryCount,
         private readonly int $scheduledAt,
         private readonly int $sentAt,
+        private readonly array $headers = [],
     ) {}
 
     public function getUid(): int
@@ -35,6 +39,14 @@ final class MailQueue
     public function getBody(): string
     {
         return $this->body;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
     }
 
     public function getStatus(): string

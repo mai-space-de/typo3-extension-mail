@@ -60,6 +60,45 @@ final class MailServiceTest extends TestCase
     }
 
     #[Test]
+    public function queueStoresHeadersInDatabase(): void
+    {
+        $headers = ['List-Unsubscribe' => '<mailto:unsub@example.com>', 'List-Unsubscribe-Post' => 'List-Unsubscribe=One-Click'];
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::once())
+            ->method('insert')
+            ->with(
+                'tx_maimail_queue',
+                self::callback(static function (array $data) use ($headers): bool {
+                    return $data['recipient'] === 'user@example.com'
+                        && $data['headers'] === json_encode($headers, JSON_THROW_ON_ERROR);
+                }),
+            );
+
+        $this->connectionPool->method('getConnectionForTable')->willReturn($connection);
+
+        $this->subject->queue('user@example.com', 'Subject', '<p>Body</p>', null, $headers);
+    }
+
+    #[Test]
+    public function queueSkipsHeadersWhenEmpty(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::once())
+            ->method('insert')
+            ->with(
+                'tx_maimail_queue',
+                self::callback(static function (array $data): bool {
+                    return array_key_exists('headers', $data) && $data['headers'] === null;
+                }),
+            );
+
+        $this->connectionPool->method('getConnectionForTable')->willReturn($connection);
+
+        $this->subject->queue('user@example.com', 'Subject', '<p>Body</p>');
+    }
+
+    #[Test]
     public function queueUsesProvidedScheduledAt(): void
     {
         $scheduledAt = new DateTimeImmutable('2025-12-31 12:00:00');
@@ -170,6 +209,28 @@ final class MailServiceTest extends TestCase
     }
 
     #[Test]
+    public function dispatchAppliesListUnsubscribeHeadersFromRow(): void
+    {
+        [$queueConnection, $logConnection] = $this->buildDispatchConnections();
+        $this->configurationManager->method('getConfiguration')->willReturn($this->validSenderConfig());
+
+        $capturedMessage = null;
+        $this->mailer->method('send')
+            ->willReturnCallback(static function ($message) use (&$capturedMessage): void {
+                $capturedMessage = $message;
+            });
+
+        $this->subject->dispatch($this->buildRow(overrides: ['headers' => json_encode(['List-Unsubscribe' => '<mailto:unsub@example.com>'], JSON_THROW_ON_ERROR)]));
+
+        self::assertNotNull($capturedMessage);
+        self::assertInstanceOf(\Symfony\Component\Mime\Email::class, $capturedMessage);
+        self::assertSame(
+            '<mailto:unsub@example.com>',
+            $capturedMessage->getHeaders()->get('List-Unsubscribe')?->getBodyAsString(),
+        );
+    }
+
+    #[Test]
     public function dispatchUsesSettingsEmailFromConfigurationManager(): void
     {
         [$queueConnection, $logConnection] = $this->buildDispatchConnections();
@@ -205,7 +266,7 @@ final class MailServiceTest extends TestCase
     }
 
     #[Test]
-    public function dispatchSetsStatusToFailedAfterThirdFailure(): void
+    public function dispatchSetsStatusToDeadAfterMaxRetriesExhausted(): void
     {
         [$queueConnection, $logConnection] = $this->buildDispatchConnections();
         $this->configurationManager->method('getConfiguration')->willReturn($this->validSenderConfig());
@@ -218,10 +279,10 @@ final class MailServiceTest extends TestCase
                 return 1;
             });
 
-        // retry_count=2 means this is the 3rd attempt: 2+1=3 >= 3 → 'failed'
+        // retry_count=2 means this is the 3rd attempt: 2+1=3 >= 3 → 'dead'
         $this->subject->dispatch($this->buildRow(retryCount: 2));
 
-        self::assertSame('failed', $lastUpdateData['status'] ?? null);
+        self::assertSame('dead', $lastUpdateData['status'] ?? null);
         self::assertSame(3, $lastUpdateData['retry_count'] ?? null);
     }
 
@@ -243,6 +304,52 @@ final class MailServiceTest extends TestCase
             );
 
         $this->subject->dispatch($this->buildRow());
+    }
+
+    #[Test]
+    public function dispatchRespectsConfigurableMaxRetryCount(): void
+    {
+        [$queueConnection, $logConnection] = $this->buildDispatchConnections();
+        $this->configurationManager->method('getConfiguration')->willReturn(
+            array_merge($this->validSenderConfig(), ['maxRetryCount' => 5]),
+        );
+        $this->mailer->method('send')->willThrowException(new \RuntimeException('SMTP error'));
+
+        $lastUpdateData = [];
+        $queueConnection->method('update')
+            ->willReturnCallback(static function (string $table, array $data) use (&$lastUpdateData): int {
+                $lastUpdateData = $data;
+                return 1;
+            });
+
+        // retry_count=4 means this is the 5th attempt: 4+1=5 >= 5 → 'dead'
+        $this->subject->dispatch($this->buildRow(retryCount: 4));
+
+        self::assertSame('dead', $lastUpdateData['status'] ?? null);
+        self::assertSame(5, $lastUpdateData['retry_count'] ?? null);
+    }
+
+    #[Test]
+    public function dispatchStillRetriesBeforeConfigurableMaxRetryCount(): void
+    {
+        [$queueConnection, $logConnection] = $this->buildDispatchConnections();
+        $this->configurationManager->method('getConfiguration')->willReturn(
+            array_merge($this->validSenderConfig(), ['maxRetryCount' => 5]),
+        );
+        $this->mailer->method('send')->willThrowException(new \RuntimeException('SMTP error'));
+
+        $lastUpdateData = [];
+        $queueConnection->method('update')
+            ->willReturnCallback(static function (string $table, array $data) use (&$lastUpdateData): int {
+                $lastUpdateData = $data;
+                return 1;
+            });
+
+        // retry_count=3 means this is the 4th attempt: 3+1=4 < 5 → still 'queued'
+        $this->subject->dispatch($this->buildRow(retryCount: 3));
+
+        self::assertSame('queued', $lastUpdateData['status'] ?? null);
+        self::assertSame(4, $lastUpdateData['retry_count'] ?? null);
     }
 
     #[Test]

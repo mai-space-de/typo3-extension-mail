@@ -44,6 +44,7 @@ return (new Table($lang('table.tx_maimail_queue')))
                 ['label' => $lang('tx_maimail_queue.status.processing'), 'value' => 'processing'],
                 ['label' => $lang('tx_maimail_queue.status.sent'), 'value' => 'sent'],
                 ['label' => $lang('tx_maimail_queue.status.failed'), 'value' => 'failed'],
+                ['label' => $lang('tx_maimail_queue.status.dead'), 'value' => 'dead'],
             ])
     )
     ->addColumn(

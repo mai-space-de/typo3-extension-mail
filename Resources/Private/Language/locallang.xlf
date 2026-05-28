@@ -15,11 +15,17 @@
             <trans-unit id="module.log.title">
                 <source>Mail log</source>
             </trans-unit>
+            <trans-unit id="module.dead.title">
+                <source>Dead letters (retries exhausted)</source>
+            </trans-unit>
             <trans-unit id="action.resend">
                 <source>Resend</source>
             </trans-unit>
             <trans-unit id="action.delete">
                 <source>Delete</source>
+            </trans-unit>
+            <trans-unit id="action.requeue">
+                <source>Re-queue</source>
             </trans-unit>
         </body>
     </file>

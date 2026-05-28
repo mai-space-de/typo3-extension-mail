@@ -62,6 +62,13 @@ final class MailQueueTest extends TestCase
     }
 
     #[Test]
+    public function getStatusReturnsDeadWhenDead(): void
+    {
+        $queue = new MailQueue(1, 'Subject', 'to@example.com', '', 'dead', 3, 0, 0);
+        self::assertSame('dead', $queue->getStatus());
+    }
+
+    #[Test]
     public function getRetryCountReturnsConstructorValue(): void
     {
         $queue = new MailQueue(1, 'Subject', 'to@example.com', '', 'queued', 3, 0, 0);

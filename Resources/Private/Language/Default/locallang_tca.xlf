@@ -33,6 +33,9 @@
             <trans-unit id="tx_maimail_queue.status.failed">
                 <source>Failed</source>
             </trans-unit>
+            <trans-unit id="tx_maimail_queue.status.dead">
+                <source>Dead (retries exhausted)</source>
+            </trans-unit>
             <trans-unit id="tx_maimail_queue.retry_count">
                 <source>Retry count</source>
             </trans-unit>

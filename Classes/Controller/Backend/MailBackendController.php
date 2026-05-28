@@ -34,6 +34,7 @@ class MailBackendController extends AbstractBackendController
         $this->addShortcutButton($moduleTemplate, 'mai_mail', 'Mail Queue');
         $this->assignMultiple($moduleTemplate, [
             'queuedMails' => $this->mailQueueRepository->findAll(),
+            'deadLetters' => $this->mailQueueRepository->findByStatus('dead'),
             'loggedMails' => $this->mailLogRepository->findRecent(50),
         ]);
         return $this->renderModuleResponse($moduleTemplate, 'Index');

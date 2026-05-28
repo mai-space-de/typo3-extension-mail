@@ -39,7 +39,7 @@ $this->mailService->queue(
                       └───────┬────────────────┬────────┘                         │
                               │                │                                  │
                     send OK   │                │  send fails                      │
-                              │                │  retry_count < 3                 │
+                              │                │  retry_count < maxRetryCount     │
                               ▼                ▼                                  │
               ┌───────────────┐   ┌────────────────────────┐                      │
               │     SENT      │   │  back to QUEUED        │──────────────────────┘
@@ -47,12 +47,13 @@ $this->mailService->queue(
               └───────────────┘   └────────────────────────┘
                                           │
                                           │  send fails
-                                          │  retry_count >= 3
+                                          │  retry_count >= maxRetryCount
                                           ▼
                               ┌────────────────────────┐
-                              │        FAILED          │
-                              │  status = 'failed'     │
+                              │         DEAD           │
+                              │  status = 'dead'       │
                               │  error_message = …     │
+                              │  (dead letter)         │
                               └────────────────────────┘
 ```
 
@@ -61,7 +62,11 @@ $this->mailService->queue(
 | `queued` | Waiting for the next `mail:process-queue` run |
 | `processing` | Currently being dispatched (transient — normally milliseconds) |
 | `sent` | Successfully delivered to the MTA |
-| `failed` | All 3 dispatch attempts exhausted; manual intervention required |
+| `dead` | All `maxRetryCount` dispatch attempts exhausted; manual re-queue required |
+
+Dead letters are displayed in a separate **Dead Letters** section in the backend
+module. The operator can re-queue them (resets `status='queued'`, `retry_count=0`)
+or delete them permanently.
 
 ---
 
@@ -70,15 +75,30 @@ $this->mailService->queue(
 `MailService::dispatch()` applies automatic retry handling:
 
 - On each transport failure the `retry_count` column is incremented by 1.
-- If `retry_count < 3` the status is reset to `queued` so the email is retried on the next
-  queue run.
-- Once `retry_count >= 3` (i.e. the 3rd consecutive failure) the status is set to `failed`
-  and the email will no longer be picked up automatically.
+- If `retry_count < maxRetryCount` (default: 3) the status is reset to `queued` so the
+  email is retried on the next queue run.
+- Once `retry_count >= maxRetryCount` the status is set to `dead` (dead letter) and the
+  email will no longer be picked up automatically.
 - Every failed dispatch attempt — regardless of whether it is retried or not — writes a row
   to `tx_maimail_log` with `status = 'failed'` and the full exception message.
 
-Failed entries can be manually re-queued from the backend module (see section 5), which
-resets `status = 'queued'`, `retry_count = 0`, and `error_message = ''`.
+### Configuring the retry limit
+
+The maximum retry count is configured via TypoScript:
+
+```typoscript
+plugin.tx_maimail {
+    settings {
+        maxRetryCount = 5
+    }
+}
+```
+
+If not set, the default value is **3**.
+
+Dead letters appear in a dedicated **Dead Letters** section in the backend module.
+They can be manually re-queued (resets `status = 'queued'`, `retry_count = 0`,
+`error_message = ''`) or deleted permanently.
 
 ---
 
@@ -165,8 +185,8 @@ to `$GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress']` (the TYPO3 sy
 | `subject` | `varchar(255)` | Email subject line |
 | `recipient` | `varchar(255)` | Recipient email address |
 | `body` | `mediumtext` | Full HTML email body |
-| `status` | `varchar(20)` | `queued` / `processing` / `sent` / `failed` |
-| `retry_count` | `int unsigned` | Number of failed dispatch attempts (0–3) |
+| `status` | `varchar(20)` | `queued` / `processing` / `sent` / `dead` |
+| `retry_count` | `int unsigned` | Number of failed dispatch attempts (0–maxRetryCount) |
 | `error_message` | `text` | Last exception message; empty on success |
 | `scheduled_at` | `int unsigned` | Unix timestamp of earliest dispatch time |
 | `sent_at` | `int unsigned` | Unix timestamp when status became `sent`; `0` until then |

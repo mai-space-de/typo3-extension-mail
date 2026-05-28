@@ -75,6 +75,10 @@ final class MailQueueRepository
 
     private static function hydrate(array $row): MailQueue
     {
+        $headers = isset($row['headers']) && $row['headers'] !== ''
+            ? json_decode($row['headers'], true, 512, JSON_THROW_ON_ERROR)
+            : [];
+
         return new MailQueue(
             uid: (int) $row['uid'],
             subject: (string) $row['subject'],
@@ -84,6 +88,7 @@ final class MailQueueRepository
             retryCount: (int) $row['retry_count'],
             scheduledAt: (int) $row['scheduled_at'],
             sentAt: (int) $row['sent_at'],
+            headers: is_array($headers) ? $headers : [],
         );
     }
 }

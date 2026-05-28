@@ -1,0 +1,39 @@
+<h2><f:translate key="LLL:EXT:mai_mail/Resources/Private/Language/locallang.xlf:module.dead.title" /></h2>
+<f:if condition="{deadLetters}">
+    <f:then>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Recipient</th>
+                    <th>Status</th>
+                    <th>Error message</th>
+                    <th>Retries</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <f:for each="{deadLetters}" as="mail">
+                    <tr class="danger">
+                        <td>{mail.subject}</td>
+                        <td>{mail.recipient}</td>
+                        <td><span class="label label-danger">dead</span></td>
+                        <td>{mail.errorMessage}</td>
+                        <td>{mail.retryCount}</td>
+                        <td>
+                            <f:link.action action="resend" arguments="{uid: mail.uid}" class="btn btn-default btn-sm">
+                                <f:translate key="LLL:EXT:mai_mail/Resources/Private/Language/locallang.xlf:action.requeue" />
+                            </f:link.action>
+                            <f:link.action action="delete" arguments="{uid: mail.uid}" class="btn btn-danger btn-sm" additionalAttributes="{data-confirm: 'Delete this dead letter from the queue?'}">
+                                <f:translate key="LLL:EXT:mai_mail/Resources/Private/Language/locallang.xlf:action.delete" />
+                            </f:link.action>
+                        </td>
+                    </tr>
+                </f:for>
+            </tbody>
+        </table>
+    </f:then>
+    <f:else>
+        <p><em>No dead letters.</em></p>
+    </f:else>
+</f:if>

@@ -3,6 +3,7 @@ plugin.tx_maimail {
     settings {
         defaultSenderName = BGM Pulheim
         defaultSenderEmail = noreply@bgm-pulheim.org
+        maxRetryCount = 3
         headerTemplate =
         footerTemplate =
     }

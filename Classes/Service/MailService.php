@@ -11,7 +11,7 @@ use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Mail\Mailer;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
-final class MailService
+final class MailService implements MailQueueInterface
 {
     private const string TABLE_QUEUE = 'tx_maimail_queue';
     private const string TABLE_LOG = 'tx_maimail_log';
@@ -22,7 +22,10 @@ final class MailService
         private readonly Mailer $mailer,
     ) {}
 
-    public function queue(string $recipient, string $subject, string $htmlBody, ?DateTimeInterface $scheduledAt = null): void
+    /**
+     * @param array<string, string> $headers
+     */
+    public function queue(string $recipient, string $subject, string $htmlBody, ?DateTimeInterface $scheduledAt = null, array $headers = []): void
     {
         $connection = $this->connectionPool->getConnectionForTable(self::TABLE_QUEUE);
         $timestamp = time();
@@ -34,12 +37,32 @@ final class MailService
             'subject' => $subject,
             'recipient' => $recipient,
             'body' => $htmlBody,
+            'headers' => $headers !== [] ? json_encode($headers, JSON_THROW_ON_ERROR) : null,
             'status' => 'queued',
             'retry_count' => 0,
             'error_message' => '',
             'scheduled_at' => $scheduledAt?->getTimestamp() ?? $timestamp,
             'sent_at' => 0,
         ]);
+    }
+
+    /**
+     * Read the configured max retry count from TypoScript settings.
+     * Defaults to 3 if not set or non-numeric.
+     */
+    private function resolveMaxRetryCount(): int
+    {
+        try {
+            $settings = $this->configurationManager->getConfiguration(
+                ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+                'MaiMail',
+            );
+            $value = $settings['maxRetryCount'] ?? 3;
+
+            return is_numeric($value) ? (int) $value : 3;
+        } catch (\Throwable) {
+            return 3;
+        }
     }
 
     public function dispatch(array $row): void
@@ -68,6 +91,16 @@ final class MailService
                 ->to($row['recipient'])
                 ->subject($row['subject'])
                 ->html($row['body']);
+
+            $headers = isset($row['headers']) && $row['headers'] !== ''
+                ? json_decode($row['headers'], true, 512, JSON_THROW_ON_ERROR)
+                : [];
+            if (is_array($headers)) {
+                foreach ($headers as $name => $value) {
+                    $message->getHeaders()->addTextHeader($name, $value);
+                }
+            }
+
             $this->mailer->send($message);
 
             $queueConnection->update(
@@ -87,7 +120,8 @@ final class MailService
             ]);
         } catch (\Throwable $throwable) {
             $retryCount = (int) $row['retry_count'] + 1;
-            $status = $retryCount >= 3 ? 'failed' : 'queued';
+            $maxRetryCount = $this->resolveMaxRetryCount();
+            $status = $retryCount >= $maxRetryCount ? 'dead' : 'queued';
 
             $queueConnection->update(
                 self::TABLE_QUEUE,
