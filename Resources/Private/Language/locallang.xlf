@@ -1,8 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
-<xliff version="1.0">
-    <file source-language="en" datatype="plaintext" original="messages" date="2026-04-19T00:00:00Z" product-name="mai_mail">
-        <header/>
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="messages" product-name="mai_mail">
         <body>
+            <trans-unit id="mlang_tabs_tab">
+                <source>Mail</source>
+            </trans-unit>
+            <trans-unit id="mlang_labels_tablabel">
+                <source>Mail Queue &amp; Log</source>
+            </trans-unit>
+            <trans-unit id="mlang_labels_tabdescr">
+                <source>Inspect queued mails, resend failed emails, and review the mail log.</source>
+            </trans-unit>
             <trans-unit id="module.title">
                 <source>Mai Mail</source>
             </trans-unit>
