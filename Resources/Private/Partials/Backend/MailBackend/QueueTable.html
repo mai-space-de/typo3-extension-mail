@@ -20,7 +20,7 @@
                 <td><f:format.date format="d.m.Y H:i">{mail.scheduledAt}</f:format.date></td>
                 <td>
                     <f:link.action action="resend" arguments="{uid: mail.uid}" class="btn btn-default btn-sm">Resend</f:link.action>
-                    <f:link.action action="delete" arguments="{uid: mail.uid}" class="btn btn-danger btn-sm" additionalAttributes="{data-confirm: 'Delete this mail from the queue?'}">Delete</f:link.action>
+                    <f:link.action action="delete" arguments="{uid: mail.uid}" class="btn btn-danger btn-sm" additionalAttributes="{'data-confirm': 'Delete this mail from the queue?'}">Delete</f:link.action>
                 </td>
             </tr>
         </f:for>

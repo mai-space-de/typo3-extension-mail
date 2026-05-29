@@ -24,7 +24,7 @@
                             <f:link.action action="resend" arguments="{uid: mail.uid}" class="btn btn-default btn-sm">
                                 <f:translate key="LLL:EXT:mai_mail/Resources/Private/Language/locallang.xlf:action.requeue" />
                             </f:link.action>
-                            <f:link.action action="delete" arguments="{uid: mail.uid}" class="btn btn-danger btn-sm" additionalAttributes="{data-confirm: 'Delete this dead letter from the queue?'}">
+                            <f:link.action action="delete" arguments="{uid: mail.uid}" class="btn btn-danger btn-sm" additionalAttributes="{'data-confirm': 'Delete this dead letter from the queue?'}">
                                 <f:translate key="LLL:EXT:mai_mail/Resources/Private/Language/locallang.xlf:action.delete" />
                             </f:link.action>
                         </td>
