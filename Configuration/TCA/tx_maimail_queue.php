@@ -20,6 +20,7 @@ return (new Table($lang('table.tx_maimail_queue')))
     ->setDefaultSorting('ORDER BY crdate DESC')
     ->recordsAreOnlyAllowedInRoot()
     ->setAccessableOnlyByAdmins()
+    ->disableRecordModule()
     ->addColumn(
         'subject',
         $lang('tx_maimail_queue.subject'),
